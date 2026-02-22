@@ -10,10 +10,16 @@
     "frontendDist": "../dist"
   },
   "app": {
+    "macOSPrivateApi": true,
     "windows": [
       {
-        "title": "caughtin4k",
-        "width": 800,
+        "fullscreen": false,
+        "minWidth": 1000,
+        "minHeight": 600,
+        "transparent": true,
+        "decorations": false,
+        "title": "CaughtIn4k Overlay",
+        "width": 1000,
         "height": 600
       }
     ],

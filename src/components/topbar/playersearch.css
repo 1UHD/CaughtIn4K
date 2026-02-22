@@ -1,0 +1,16 @@
+@import url("../../theme.css");
+
+.playersearch {
+    position: absolute;
+    right: 120px;
+}
+
+#search-input {
+    height: 50px;
+    font-size: 16px;
+    background-color: transparent;
+    border: none;
+    color: var(--text-color);
+    outline: none;
+    font-family: var(--font);
+}

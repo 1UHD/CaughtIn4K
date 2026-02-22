@@ -1,0 +1,11 @@
+:root {
+    --background-color: rgba(53, 53, 53, 1);
+    --menu-color: rgba(44, 44, 44, 1);
+    --topbar-color: rgba(36, 36, 36, 1);
+
+    --text-color: rgba(212, 212, 212, 1);
+    --heading-color: rgba(255, 255, 255, 1);
+    --select-color: rgba(75, 142, 255, 1);
+
+    --font: "Minecraft", sans-serif;
+}

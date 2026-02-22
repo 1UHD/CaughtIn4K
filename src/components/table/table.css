@@ -1,0 +1,12 @@
+@import url("../../theme.css");
+
+.table {
+    background-color: var(--background-color);
+    width: 100vw;
+    height: 100vh;
+}
+
+.space {
+    height: 50px;
+    width: 100vh;
+}

@@ -1,0 +1,17 @@
+.logo {
+    width: 450px;
+}
+
+#logo {
+    margin-top: -5px;
+    height: 60px;
+    width: 60px;
+    cursor: pointer;
+    -webkit-user-drag: none;
+}
+
+#title {
+    padding-bottom: 13px;
+    height: 30px;
+    -webkit-user-drag: none;
+}

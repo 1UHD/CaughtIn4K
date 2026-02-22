@@ -1,0 +1,34 @@
+.buttons {
+    width: 100px;
+    height: 50px;   
+    display: flex;
+    -webkit-app-region: no-drag;
+    cursor: pointer;
+    position: absolute;
+    right: 0;
+}
+
+.buttons img {
+    width: 50px;
+}
+
+.minimize img {
+    position: absolute;
+    right: 50px;
+}
+
+.close img {
+    position: absolute;
+    right: 0;
+}
+
+#mactive, #mpressed, #cactive, #cpressed {
+    opacity: 0;
+}
+
+.minimize:hover #mactive,
+.minimize:active #mpressed,
+.close:hover #cactive,
+.close:active #cpressed {
+    opacity: 1;
+}
