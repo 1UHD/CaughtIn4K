@@ -1,5 +1,5 @@
 import "./topbar.css";
-import Logo from "./logo";
+import Logo from "./Logo";
 import Buttons from "./Buttons";
 import PlayerSearch from "./PlayerSearch";
 

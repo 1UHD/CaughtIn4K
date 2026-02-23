@@ -4,9 +4,54 @@
     background-color: var(--background-color);
     width: 100vw;
     height: 100vh;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 .space {
     height: 50px;
     width: 100vh;
+}
+
+.player-table {
+    border: 1px solid red;
+    border: none;
+    border-collapse: collapse;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    user-select: none;
+    height: auto;
+    width: 100vw;
+    font-family: var(--font);
+}
+
+.player-table tr:nth-child(even) {
+    background-color: var(--table-stripes-color);
+}
+
+.player-table td {
+    color: var(--text-color);
+    font-size: 16px;
+}
+
+.player-table th {
+    color: var(--heading-color);
+    font-size: 13px;
+    font-weight: bold;
+}
+
+#player_skull {
+    width: 30px;
+}
+
+.player-table td img {
+    height: 30px;
+    width: 30px;
+}
+
+.player-table th,
+.player-table td {
+    padding: 5px;
+    text-align: center;
 }
