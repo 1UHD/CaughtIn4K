@@ -3,36 +3,32 @@ import "./table.css"
 import { formatRank, formatStars } from "../../functional/statsFormatter";
 
 interface PlayerProps {
-    uuid: string;
+    uuid: string | undefined;
     name: string;
-    formatted_name: string | undefined;
-    hypixel_level: number | undefined;
-    bedwars_level: string | undefined;
-    winstreak: number | undefined;
+    rank: string | undefined;
+    monthlyrank: string | undefined;
+    staffrank: string | undefined;
+    rankcolor: string | undefined;
+    bedwars_level: number | undefined;
     final_kills: number | undefined;
-    final_deaths: number | undefined;
     fkdr: number | undefined;
-    kills: number | undefined;
-    deaths: number | undefined;
-    kdr: number | undefined;
-    beds_broken: number | undefined;
-    beds_lost: number | undefined;
-    bblr: number | undefined;
     wins: number | undefined;
-    losses: number | undefined;
     wlr: number | undefined;
 }
 
-function Player({ uuid, formatted_name, bedwars_level, final_kills, fkdr, wins, wlr }: PlayerProps) {
-    let attributes = [bedwars_level, formatted_name, final_kills, fkdr, wins, wlr];
+function Player({ uuid, name, rank, monthlyrank, staffrank, rankcolor, bedwars_level, final_kills, fkdr, wins, wlr }: PlayerProps) {
+    let display_name = formatRank(rank, monthlyrank, staffrank, rankcolor, name);
+    let display_level = bedwars_level ? formatStars(bedwars_level) : "";
 
-    const player_skull = `https://mc-heads.net/avatar/${uuid}`;
+    let attributes = [display_level, display_name, final_kills, fkdr, wins, wlr];
+
+    const player_skull = uuid ? `https://mc-heads.net/avatar/${uuid}` : `https://mc-heads.net/avatar/ff99328f-e0ca-45c2-8b86-969052b1d521`;
 
     return (
         <tr key={uuid}>
-            <td><img src={player_skull} /></td>
+            <td>{player_skull ? <img src={player_skull} /> : null}</td>
             {attributes.map((item) => (
-                <td>{item}</td>
+                <td>{item ? item : null}</td>
             ))}
         </tr>
     )
@@ -47,22 +43,28 @@ function Table() {
             {
                 uuid: "860d353d-1f1e-4356-a059-fec025a2b590",
                 name: "iUHD",
-                formatted_name: formatRank("MVP_PLUS", "NONE", "NONE","DARK_GRAY", "iUHD"),
-                hypixel_level: 0,
-                bedwars_level: formatStars(3475),
-                winstreak: 1,
-                final_kills: 5481,
-                final_deaths: 1038,
-                fkdr: 1.15,
-                kills: 0,
-                deaths: 0,
-                kdr: 0,
-                wins: 2019,
-                losses: 5021,
-                wlr: 0.38,
-                beds_broken: 1939,
-                beds_lost: 3401,
-                bblr: 0.69,
+                rank: "MVP_PLUS",
+                monthlyrank: "MVP_PLUS",
+                staffrank: "NONE",
+                rankcolor: "DARK_GRAY",
+                bedwars_level: 1673,
+                final_kills: 45481,
+                fkdr: 10.15,
+                wins: 10612,
+                wlr: 3.38,
+            },
+            {
+                uuid: undefined,
+                name: "nicked_player",
+                rank: undefined,
+                monthlyrank: undefined,
+                staffrank: undefined,
+                rankcolor: undefined,
+                bedwars_level: undefined,
+                final_kills: undefined,
+                fkdr: undefined,
+                wins: undefined,
+                wlr: undefined,
             }
         ])
     }, []);

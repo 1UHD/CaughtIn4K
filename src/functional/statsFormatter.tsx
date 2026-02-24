@@ -121,12 +121,16 @@ function getRankColorHEX(rankcolor: any) {
 }
 
 export function formatRank(
-    rank: any,
-    monthlyrank: any,
-    staffrank: any,
-    rankcolor: any,
+    rank: string | undefined,
+    monthlyrank: string | undefined,
+    staffrank: string | undefined,
+    rankcolor: string | undefined,
     name: string
 ) {
+    if (!rank || !monthlyrank || !staffrank || !rankcolor) {
+        return formatToSpan(["[", "NICK", "] ", name], [gray, yellow, gray, gray])
+    }
+
     let pluscolor = getRankColorHEX(rankcolor);
 
     let shownRank = "";
@@ -146,70 +150,70 @@ export function formatRank(
             return formatToSpan(
                 ["[", "Y", "O", "U", "T", "U", "B", "E", "] ", name],
                 [
-                    "#ff5e5e",
-                    "white",
-                    "white",
-                    "white",
-                    "white",
-                    "white",
-                    "white",
-                    "white",
-                    "#ff5e5e",
-                    "#ff5e5e",
+                    red,
+                    white,
+                    white,
+                    white,
+                    white,
+                    white,
+                    white,
+                    white,
+                    red,
+                    red,
                 ]
             );
 
         case "GAME_MASTER":
-            return formatToSpan(["[GM] ", name], ["green", "green"]);
+            return formatToSpan(["[GM] ", name], [dark_green, dark_green]);
 
         case "ADMIN":
-            return formatToSpan(["[ADMIN] ", name], ["#ff5e5e", "#ff5e5e"]);
+            return formatToSpan(["[ADMIN] ", name], [red, red]);
 
         case "SUPERSTAR":
             return formatToSpan(
                 ["[", "M", "V", "P", "+", "+", "] ", name],
                 [
-                    "gold",
-                    "gold",
-                    "gold",
-                    "gold",
+                    gold,
+                    gold,
+                    gold,
+                    gold,
                     pluscolor,
                     pluscolor,
-                    "gold",
-                    "gold",
+                    gold,
+                    gold,
                 ]
             );
 
         case "MVP_PLUS":
             return formatToSpan(
                 ["[", "M", "V", "P", "+", "] ", name],
-                ["aqua", "aqua", "aqua", "aqua", pluscolor, "aqua", "aqua"]
+                [aqua, aqua, aqua, aqua, pluscolor, aqua, aqua]
             );
 
         case "MVP":
-            return formatToSpan(["[MVP] ", name], ["aqua", "aqua"]);
+            return formatToSpan(["[MVP] ", name], [aqua, aqua]);
 
         case "VIP_PLUS":
             return formatToSpan(
                 ["[", "V", "I", "P", "+", "] ", name],
                 [
-                    "#6aff6a",
-                    "#6aff6a",
-                    "#6aff6a",
-                    "#6aff6a",
-                    "gold",
-                    "#6aff6a",
-                    "#6aff6a",
+                    green,
+                    green,
+                    green,
+                    green,
+                    gold,
+                    green,
+                    green,
                 ]
             );
 
         case "VIP":
-            return formatToSpan(["[VIP] ", name], ["#6aff6a", "#6aff6a"]);
+            return formatToSpan(["[VIP] ", name], [green, green]);
 
         case "NON":
-            return formatToSpan([name], ["gray"]);
+            return formatToSpan([name], [gray]);
 
         default:
-            return formatToSpan([name], ["yellow"]);
+            return formatToSpan(["[", "NICK", "] ", name], [gray, yellow, gray, gray]);
     }
 }
