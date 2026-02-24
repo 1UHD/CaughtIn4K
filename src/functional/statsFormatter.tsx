@@ -169,6 +169,9 @@ export function formatRank(
         case "ADMIN":
             return formatToSpan(["[ADMIN] ", name], [red, red]);
 
+        case "STAFF":
+            return formatToSpan(["[ADMIN] ", name], [red, red]);
+
         case "SUPERSTAR":
             return formatToSpan(
                 ["[", "M", "V", "P", "+", "+", "] ", name],

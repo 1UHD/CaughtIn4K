@@ -2,23 +2,42 @@
 mod networking;
 mod config;
 
-use networking::{request_player};
+use crate::networking::{Player};
 use crate::config::{init_config_system, read_api_key, write_api_key};
+
+async fn request_player(name: String) {
+    let mut player = Player {
+        uuid: None, name: name, rank: None, staffrank: None,
+        monthlyrank: None, rankcolor: None, bedwars_level: None,
+        final_kills: None, fkdr: None, final_deaths: None,
+        wins: None, losses: None, wlr: None,
+    };
+
+    let uuid = player.get_uuid().await;
+    if uuid.is_none() {
+        println!("nicked player found");
+        return;
+    }
+    player.uuid = uuid;
+
+    let apikey = match read_api_key() {
+        Ok(key) => key,
+        Err(e) => {
+            println!("error with api key{}", e);
+            return;
+        },
+    };
+
+
+    player.get_hypixel_player(apikey).await;
+    println!("{:?}", player);
+}
 
 #[tauri::command]
 async fn add_player(name: String) {
     println!("{}", name);
-    init_config_system();
-    match write_api_key(name) {
-        Ok(_) => {},
-        Err(e) => println!("couldnt write: {}", e)
-    }
-
-    match read_api_key() {
-        Ok(apikey) => println!("APIKEY: {}", apikey),
-        Err(e) => println!("couldnt read: {}", e)
-    }
-    //request_player(name).await;
+    
+    request_player(name).await;
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]

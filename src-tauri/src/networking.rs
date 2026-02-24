@@ -40,6 +40,7 @@ struct HypixelPlayer {
     staff_rank: Option<String>,
     #[serde(rename = "rankPlusColor")]
     plus_color: Option<String>,
+    displayname: Option<String>,
     achievements: Option<HypixelAchievements>,
     stats: Option<HypixelStats>
 }
@@ -64,16 +65,18 @@ struct HypixelStatsBedwars {
 }
 
 impl Player {
-    async fn get_uuid(&self) -> Option<String> {
+    pub async fn get_uuid(&self) -> Option<String> {
         let url = format!("https://api.mojang.com/users/profiles/minecraft/{}", self.name);
 
         let response = match reqwest::get(&url).await {
             Ok(r) => r,
             Err(e) => { if e.is_connect() || e.is_timeout() {
                     // update Mojang status to offline
+                    println!("[networking::get_uuid] Mojang offline");
                     return None;
                 } else {
                     // update Mojang status to error
+                    println!("[networking::get_uuid] Mojang error 1");
                     return None
                 }
             }
@@ -85,39 +88,45 @@ impl Player {
                 match profile {
                     Ok(p) => {
                         // TODO: Emit Mojang ONLINE
+                        println!("[networking::get_uuid] Mojang online (200)");
                         return Some(p.id);
                     },
                     Err(_) => {
                         // TODO: Emit "INVALID_RESPONSE" event
+                        println!("[networking::get_uuid] Mojang parsing error");
                         return None;
                     }
                 }
             }
             reqwest::StatusCode::TOO_MANY_REQUESTS => {
                 // TODO: Emit "RATELIMIT" event to frontend
+                println!("[networking::get_uuid] Mojang ratelimit");
                 return None;
             },
             _ => {
                 // TODO: Emit generic error event with status code
+                println!("[networking::get_uuid] Mojang error 2");
                 return None
             }
         }
     }
 
-    async fn get_hypixel_player(&mut self, apikey: String) {
+    pub async fn get_hypixel_player(&mut self, apikey: String) {
         if self.uuid.is_none() {
             return;
         }
 
-        let url = format!("https://api.hypixel.net/player?key={}&uuid={}", apikey, self.uuid.unwrap());
+        let url = format!("https://api.hypixel.net/player?key={}&uuid={}", apikey, self.uuid.as_ref().unwrap());
 
         let response = match reqwest::get(&url).await {
             Ok(r) => r,
             Err(e) => { if e.is_connect() || e.is_timeout() {
                     // update Hypixel status to offline
+                    println!("[networking::get_hypixel_player] Hypixel offline");
                     return;
                 } else {
                     // update Hypixel status to error
+                    println!("[networking::get_hypixel_player] Hypixel error 1");
                     return;
                 }
             }
@@ -128,6 +137,7 @@ impl Player {
                 let profile = response.json::<HypixelResponse>().await;
                 match profile {
                     Ok(p) => {
+                        println!("[networking::get_hypixel_player] Hypixel online (200)");
                         if p.player.is_none() {
                             return;
                         }
@@ -143,6 +153,10 @@ impl Player {
                         }
                         if player.plus_color.is_some() {
                             self.rankcolor = player.plus_color;
+                        }
+                        
+                        if player.displayname.is_some() {
+                            self.name = player.displayname.unwrap();
                         }
 
                         if player.achievements.is_some() {
@@ -176,40 +190,37 @@ impl Player {
 
                                     self.fkdr = Some(((self.final_kills.unwrap() as f32 / final_deaths as f32)*100.0).round() / 100.0);
                                 }
+
+                                if bedwars.losses_bedwars.is_some() {
+                                    let mut losses = bedwars.losses_bedwars.unwrap();
+
+                                    if losses < 1 {
+                                        losses = 1;
+                                    }
+
+                                    self.wlr = Some(((self.wins.unwrap() as f32 / losses as f32)*100.0).round() / 100.0);
+                                }
                             }
                         }
 
                     },
                     Err(_) => {
                         // TODO: Emit "INVALID_RESPONSE" event
+                        println!("[networking::get_hypixel_player] Hypixel parsing error");
                         return;
                     }
                 }
             }
             reqwest::StatusCode::TOO_MANY_REQUESTS => {
                 // TODO: Emit "RATELIMIT" event to frontend
+                println!("[networking::get_hypixel_player] Hypixel ratelimit");
                 return;
             },
             _ => {
                 // TODO: Emit generic error event with status code
+                println!("[networking::get_hypixel_player] Hypixel error 2");
                 return;
             }
         }
     }
-}
-
-pub async fn request_player(name: String) {
-    let mut player = Player {
-        uuid: None, name: name, rank: None, staffrank: None,
-        monthlyrank: None, rankcolor: None, bedwars_level: None,
-        final_kills: None, fkdr: None, final_deaths: None,
-        wins: None, losses: None, wlr: None,
-    };
-
-    let uuid = player.get_uuid().await;
-    if uuid.is_none() {
-        println!("fuck");
-        return;
-    }
-    println!("{}", uuid.unwrap());
 }
