@@ -1,3 +1,4 @@
+import { invoke } from "@tauri-apps/api/core";
 import "./playersearch.css";
 
 function PlayerSearch() {
@@ -5,7 +6,7 @@ function PlayerSearch() {
 
     const searchPlayer = (event: any) => {
         if (event.key === "Enter") {
-            //do shit
+            invoke("add_player", { name: event.target.value });
         }
     }
 
