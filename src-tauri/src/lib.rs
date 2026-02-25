@@ -44,6 +44,16 @@ async fn add_player(app: AppHandle, name: String) {
 }
 
 #[tauri::command]
+fn remove_player(app: AppHandle, uuid: String) {
+    app.emit("remove-player", uuid).unwrap();
+}
+
+#[tauri::command]
+fn clear_players(app: AppHandle) {
+    app.emit("clear-players", ()).unwrap();
+}
+
+#[tauri::command]
 fn write_apikey(apikey: String) {
     match write_api_key(apikey) {
         Ok(_) => {},
@@ -56,12 +66,17 @@ fn initialize() {
     init_config_system();
 }
 
+#[tauri::command]
+fn toggle_sidebar(app: AppHandle) {
+    app.emit("toggle-sidebar", ()).unwrap();
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_http::init())
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![add_player, write_apikey, initialize])
+        .invoke_handler(tauri::generate_handler![add_player, remove_player, clear_players, write_apikey, initialize, toggle_sidebar])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

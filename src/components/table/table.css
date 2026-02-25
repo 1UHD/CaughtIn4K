@@ -16,7 +16,6 @@
 }
 
 .player-table {
-    border: 1px solid red;
     border: none;
     border-collapse: collapse;
     cursor: pointer;

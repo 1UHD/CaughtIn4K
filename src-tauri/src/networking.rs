@@ -72,11 +72,11 @@ impl Player {
             Ok(r) => r,
             Err(e) => { if e.is_connect() || e.is_timeout() {
                     // update Mojang status to offline
-                    println!("[networking::get_uuid] Mojang offline");
+                    println!("[networking::get_uuid] Mojang offline: {}", e);
                     return None;
                 } else {
                     // update Mojang status to error
-                    println!("[networking::get_uuid] Mojang error 1");
+                    println!("[networking::get_uuid] Mojang error: {}", e);
                     return None
                 }
             }
@@ -100,12 +100,12 @@ impl Player {
             }
             reqwest::StatusCode::TOO_MANY_REQUESTS => {
                 // TODO: Emit "RATELIMIT" event to frontend
-                println!("[networking::get_uuid] Mojang ratelimit");
+                println!("[networking::get_uuid] Mojang ratelimit ({})", response.status());
                 return None;
             },
             _ => {
                 // TODO: Emit generic error event with status code
-                println!("[networking::get_uuid] Mojang error 2");
+                println!("[networking::get_uuid] Mojang error ({})", response.status());
                 return None
             }
         }
@@ -122,11 +122,11 @@ impl Player {
             Ok(r) => r,
             Err(e) => { if e.is_connect() || e.is_timeout() {
                     // update Hypixel status to offline
-                    println!("[networking::get_hypixel_player] Hypixel offline");
+                    println!("[networking::get_hypixel_player] Hypixel offline: {}", e);
                     return;
                 } else {
                     // update Hypixel status to error
-                    println!("[networking::get_hypixel_player] Hypixel error 1");
+                    println!("[networking::get_hypixel_player] Hypixel error: {}", e);
                     return;
                 }
             }
@@ -204,21 +204,21 @@ impl Player {
                         }
 
                     },
-                    Err(_) => {
+                    Err(e) => {
                         // TODO: Emit "INVALID_RESPONSE" event
-                        println!("[networking::get_hypixel_player] Hypixel parsing error");
+                        println!("[networking::get_hypixel_player] Hypixel parsing error: {}", e);
                         return;
                     }
                 }
             }
             reqwest::StatusCode::TOO_MANY_REQUESTS => {
                 // TODO: Emit "RATELIMIT" event to frontend
-                println!("[networking::get_hypixel_player] Hypixel ratelimit");
+                println!("[networking::get_hypixel_player] Hypixel ratelimit ({})", response.status());
                 return;
             },
             _ => {
                 // TODO: Emit generic error event with status code
-                println!("[networking::get_hypixel_player] Hypixel error 2");
+                println!("[networking::get_hypixel_player] Hypixel error ({})", response.status());
                 return;
             }
         }

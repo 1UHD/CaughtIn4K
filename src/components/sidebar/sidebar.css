@@ -1,0 +1,22 @@
+.sidebar {
+    width: 200px;
+    height: calc(100vh - 50px);
+    background-color: var(--menu-color);
+    position: fixed;
+    top: 50px;
+    transition: all 0.3s ease;
+    display: block;
+}
+
+.category {
+    margin-left: 10px;
+    font-family: var(--font);
+    display: block;
+}
+
+.category h3 {
+    padding-top: 5px;
+    font-size: 13px;
+    font-weight: bold;
+    color: var(--heading-color);
+}

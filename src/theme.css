@@ -1,3 +1,8 @@
+@font-face {
+    font-family: "Minecraft";
+    src: url("./font/minecraft_font.ttf");
+}
+
 :root {
     --background-color: rgba(53, 53, 53, 1);
     --menu-color: rgba(44, 44, 44, 1);

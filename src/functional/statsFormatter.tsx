@@ -1,20 +1,20 @@
 //MC COLORS
-const black = "#000000";
-const dark_blue = "#0000AA";
-const dark_green = "#00AA00";
-const dark_aqua = "#00AAAA";
-const dark_red = "#AA0000";
-const dark_purple = "#AA00AA";
-const gold = "#FFAA00";
-const gray = "#AAAAAA";
-const dark_gray = "#555555";
-const blue = "#5555FF";
-const green = "#55FF55";
-const aqua = "#55FFFF";
-const red = "#FF5555";
-const pink = "#FF55FF";
-const yellow = "#FFFF55";
-const white = "#FFFFFF"
+export const black = "#000000";
+export const dark_blue = "#0000AA";
+export const dark_green = "#00AA00";
+export const dark_aqua = "#00AAAA";
+export const dark_red = "#AA0000";
+export const dark_purple = "#AA00AA";
+export const gold = "#FFAA00";
+export const gray = "#AAAAAA";
+export const dark_gray = "#555555";
+export const blue = "#5555FF";
+export const green = "#55FF55";
+export const aqua = "#55FFFF";
+export const red = "#FF5555";
+export const pink = "#FF55FF";
+export const yellow = "#FFFF55";
+export const white = "#FFFFFF"
 
 const star_colors: any = {
     0: [gray],
