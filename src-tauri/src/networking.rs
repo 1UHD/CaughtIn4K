@@ -181,7 +181,7 @@ impl Player {
                                     self.wins = bedwars.wins_bedwars;
                                 }
 
-                                if bedwars.final_deaths_bedwars.is_some() {
+                                if bedwars.final_deaths_bedwars.is_some() && self.final_kills.is_some() {
                                     let mut final_deaths = bedwars.final_deaths_bedwars.unwrap();
 
                                     if final_deaths < 1 {
@@ -191,7 +191,7 @@ impl Player {
                                     self.fkdr = Some(((self.final_kills.unwrap() as f32 / final_deaths as f32)*100.0).round() / 100.0);
                                 }
 
-                                if bedwars.losses_bedwars.is_some() {
+                                if bedwars.losses_bedwars.is_some() && self.wins.is_some() {
                                     let mut losses = bedwars.losses_bedwars.unwrap();
 
                                     if losses < 1 {

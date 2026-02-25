@@ -2,10 +2,11 @@
 mod networking;
 mod config;
 
+use tauri::{AppHandle, Emitter};
 use crate::networking::{Player};
 use crate::config::{init_config_system, read_api_key, write_api_key};
 
-async fn request_player(name: String) {
+async fn request_player(app: AppHandle, name: String) {
     let mut player = Player {
         uuid: None, name: name, rank: None, staffrank: None,
         monthlyrank: None, rankcolor: None, bedwars_level: None,
@@ -16,6 +17,7 @@ async fn request_player(name: String) {
     let uuid = player.get_uuid().await;
     if uuid.is_none() {
         println!("nicked player found");
+        app.emit("add-player", player).unwrap();
         return;
     }
     player.uuid = uuid;
@@ -28,16 +30,30 @@ async fn request_player(name: String) {
         },
     };
 
-
     player.get_hypixel_player(apikey).await;
     println!("{:?}", player);
+    
+    app.emit("add-player", player).unwrap();
 }
 
 #[tauri::command]
-async fn add_player(name: String) {
+async fn add_player(app: AppHandle, name: String) {
     println!("{}", name);
     
-    request_player(name).await;
+    request_player(app, name).await;
+}
+
+#[tauri::command]
+fn write_apikey(apikey: String) {
+    match write_api_key(apikey) {
+        Ok(_) => {},
+        Err(e) => println!("[lib::write_apikey] Couldn't write apikey: {}", e)
+    }
+}
+
+#[tauri::command]
+fn initialize() {
+    init_config_system();
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -45,7 +61,7 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_http::init())
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![add_player])
+        .invoke_handler(tauri::generate_handler![add_player, write_apikey, initialize])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

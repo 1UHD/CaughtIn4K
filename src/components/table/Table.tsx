@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./table.css"
 import { formatRank, formatStars } from "../../functional/statsFormatter";
+import { listen } from "@tauri-apps/api/event";
 
 interface PlayerProps {
     uuid: string | undefined;
@@ -11,8 +12,10 @@ interface PlayerProps {
     rankcolor: string | undefined;
     bedwars_level: number | undefined;
     final_kills: number | undefined;
+    final_deaths: number | undefined;
     fkdr: number | undefined;
     wins: number | undefined;
+    losses: number | undefined;
     wlr: number | undefined;
 }
 
@@ -28,7 +31,7 @@ function Player({ uuid, name, rank, monthlyrank, staffrank, rankcolor, bedwars_l
         <tr key={uuid}>
             <td>{player_skull ? <img src={player_skull} /> : null}</td>
             {attributes.map((item) => (
-                <td>{item ? item : null}</td>
+                <td>{item ? item : "-"}</td>
             ))}
         </tr>
     )
@@ -37,36 +40,38 @@ function Player({ uuid, name, rank, monthlyrank, staffrank, rankcolor, bedwars_l
 function Table() {
     const attributes = ["LEVEL", "NAME", "FINALS", "FKDR", "WINS", "WLR"];
     const [players, setPlayers] = useState<PlayerProps[]>([]);
+    const playersRef = useRef<PlayerProps[]>(players);
+
+    const player_already_exists = (uuid: string) => {
+        return playersRef.current.some(p => p.uuid === uuid);
+    }
+
+    useEffect(() => {
+        playersRef.current = players;
+    }, [players]);
     
     useEffect(() => {
-        setPlayers([
-            {
-                uuid: "860d353d-1f1e-4356-a059-fec025a2b590",
-                name: "iUHD",
-                rank: "MVP_PLUS",
-                monthlyrank: "MVP_PLUS",
-                staffrank: "NONE",
-                rankcolor: "DARK_GRAY",
-                bedwars_level: 1673,
-                final_kills: 45481,
-                fkdr: 10.15,
-                wins: 10612,
-                wlr: 3.38,
-            },
-            {
-                uuid: undefined,
-                name: "nicked_player",
-                rank: undefined,
-                monthlyrank: undefined,
-                staffrank: undefined,
-                rankcolor: undefined,
-                bedwars_level: undefined,
-                final_kills: undefined,
-                fkdr: undefined,
-                wins: undefined,
-                wlr: undefined,
+        const unlisten_add_player = listen<PlayerProps>(
+            "add-player",
+            async (event) => {
+                const player_uuid = event.payload.uuid;
+
+                if (player_uuid) {
+                    console.log(player_already_exists(player_uuid));
+                    if (player_already_exists(player_uuid)) {
+                        alert("already exists");
+                        return;
+                    }
+                }
+
+                const player_stats = event.payload;
+                setPlayers((prev_players) => [...prev_players, player_stats]);
             }
-        ])
+        );
+
+        return () => {
+            unlisten_add_player.then((unlisten) => unlisten());
+        };
     }, []);
     
 
@@ -81,7 +86,7 @@ function Table() {
                     ))}
                 </tr>
                 {players.map((player) => (
-                    players ? <Player {...player} /> : null
+                    players ? <Player key={player.uuid} {...player} /> : null
                 ))}
             </table>
         </div>

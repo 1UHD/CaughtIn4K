@@ -127,7 +127,7 @@ export function formatRank(
     rankcolor: string | undefined,
     name: string
 ) {
-    if (!rank || !monthlyrank || !staffrank || !rankcolor) {
+    if (!rank && !monthlyrank && !staffrank && !rankcolor) {
         return formatToSpan(["[", "NICK", "] ", name], [gray, yellow, gray, gray])
     }
 

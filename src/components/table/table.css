@@ -6,6 +6,8 @@
     height: 100vh;
     overflow-x: hidden;
     overflow-y: auto;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }
 
 .space {
@@ -39,6 +41,9 @@
     color: var(--heading-color);
     font-size: 13px;
     font-weight: bold;
+    position: sticky;
+    top: 50px;
+    background-color: var(--background-color);
 }
 
 #player_skull {
