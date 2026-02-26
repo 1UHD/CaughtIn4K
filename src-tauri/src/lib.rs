@@ -71,12 +71,31 @@ fn toggle_sidebar(app: AppHandle) {
     app.emit("toggle-sidebar", ()).unwrap();
 }
 
+#[tauri::command]
+fn toggle_general_settings(app: AppHandle) {
+    app.emit("toggle-general-settings", ()).unwrap();
+}
+
+#[tauri::command]
+fn close_general_settings(app: AppHandle) {
+    app.emit("close-general-settings", ()).unwrap();
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_http::init())
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![add_player, remove_player, clear_players, write_apikey, initialize, toggle_sidebar])
+        .invoke_handler(tauri::generate_handler![
+            add_player,
+            remove_player,
+            clear_players,
+            write_apikey,
+            initialize,
+            toggle_sidebar,
+            toggle_general_settings,
+            close_general_settings
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

@@ -2,6 +2,7 @@ import "./sidebar.css";
 import { useEffect, useState } from "react";
 import { listen } from "@tauri-apps/api/event";
 import { gold, gray, green, red } from "../../functional/statsFormatter";
+import { invoke } from "@tauri-apps/api/core";
 
 const status_styles: any = {
     "ONLINE": green,
@@ -37,6 +38,29 @@ function MojangStatus() {
             <p>Mojang: {format_status(mojangStatus)}</p>
         </div>
     );
+}
+
+function HypixelStatus() {
+    const [hypixelStatus, setHypixelStatus] = useState<string>("OFFLINE");
+
+    useEffect(() => {
+        const unlisten_hypixel_api_event = listen<string>(
+            "hypixel-api-status",
+            (event) => {
+                setHypixelStatus(event.payload);
+            }
+        );
+
+        return () => {
+            unlisten_hypixel_api_event.then((unlisten) => unlisten());
+        }
+    }, []);
+
+    return (
+        <div className="hypixelstatus">
+            <p>Hypixel: {format_status(hypixelStatus)}</p>
+        </div>
+    )
 }
 
 interface CategoryProps {
@@ -77,10 +101,30 @@ function Sidebar() {
         }
     }, [])
 
+    const clear_session = () => {
+        invoke("clear_players");
+    }
+
+    const toggle_general_settings = () => {
+        // TODO: close all other menus before opening this one
+        invoke("toggle_general_settings");
+    }
+
     return (
         <div className="sidebar" style={sidebarState ? style_when_visible : style_when_hidden}>
             <Category name="STATUS">
                 <MojangStatus />
+                <HypixelStatus />
+            </Category>
+            <Category name="SESSION">
+                <div className="session-clear" onClick={clear_session}>
+                    <p>Clear Players</p>
+                </div>
+            </Category>
+            <Category name="SETTINGS">
+                <div className="settings-general" onClick={toggle_general_settings}>
+                    <p>General</p>
+                </div>
             </Category>
         </div>
     );

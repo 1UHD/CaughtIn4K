@@ -2,7 +2,13 @@ import { invoke } from "@tauri-apps/api/core";
 import "./logo.css";
 
 function Logo() {
+    const close_all_menus = () => {
+        //TODO close all menus
+        invoke("close_general_settings");
+    }
+
     const toggle_sidebar = () => {
+        close_all_menus()
         invoke("toggle_sidebar");
     }
 

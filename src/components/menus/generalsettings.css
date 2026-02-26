@@ -1,0 +1,16 @@
+.general {
+    background-color: var(--menu-color);
+    position: fixed;
+    top: 50px;
+    height: calc(100vh - 50px);
+    width: calc(100vw - 200px);
+    transition: all 0.3s ease;
+    display: block;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    font-family: var(--font);
+    font-size: 14px;
+    color: var(--text-color);
+}

@@ -1,0 +1,20 @@
+.settings-category {
+    margin: 10px;
+    padding: 10px;
+    border: 2px solid var(--heading-color);
+
+    display: grid;
+    grid-template-columns: auto auto;
+    align-items: center;
+}
+
+#settings-category-name {
+    color: var(--heading-color);
+    position: absolute;
+    top: 0;
+    left: 20px;
+    font-size: 12px;
+    font-weight: bold;
+    background-color: var(--menu-color);
+    border: 2px solid var(--menu-color);
+}
