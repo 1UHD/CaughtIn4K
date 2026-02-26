@@ -65,7 +65,6 @@ function Table() {
                 if (player_uuid) {
                     console.log(player_already_exists(player_uuid));
                     if (player_already_exists(player_uuid)) {
-                        alert("already exists");
                         return;
                     }
                 }

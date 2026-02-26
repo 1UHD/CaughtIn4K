@@ -3,13 +3,15 @@ import "./toggle.css";
 import { dark_green, red } from "../../../functional/statsFormatter";
 
 interface ToggleProps {
-    default_state: boolean
+    default_state: boolean;
+    event: (param: boolean) => void;
 }
 
-function Toggle({ default_state }: ToggleProps) {
+function Toggle({ default_state, event }: ToggleProps) {
     const [toggleState, setToggleState] = useState<boolean>(default_state);
 
     const on_toggle_toggle = () => {
+        event(!toggleState);
         setToggleState((state) => !state);
     };
 

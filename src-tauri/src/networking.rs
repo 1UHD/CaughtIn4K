@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use tauri::{AppHandle, Emitter};
 use tauri_plugin_http::reqwest;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -65,17 +66,17 @@ struct HypixelStatsBedwars {
 }
 
 impl Player {
-    pub async fn get_uuid(&self) -> Option<String> {
+    pub async fn get_uuid(&self, app: &AppHandle) -> Option<String> {
         let url = format!("https://api.mojang.com/users/profiles/minecraft/{}", self.name);
 
         let response = match reqwest::get(&url).await {
             Ok(r) => r,
             Err(e) => { if e.is_connect() || e.is_timeout() {
-                    // update Mojang status to offline
+                    app.emit("mojang-api-status", "OFFLINE").unwrap();
                     println!("[networking::get_uuid] Mojang offline: {}", e);
                     return None;
                 } else {
-                    // update Mojang status to error
+                    app.emit("mojang-api-status", "ERROR").unwrap();
                     println!("[networking::get_uuid] Mojang error: {}", e);
                     return None
                 }
@@ -87,31 +88,36 @@ impl Player {
                 let profile = response.json::<MojangResponse>().await;
                 match profile {
                     Ok(p) => {
-                        // TODO: Emit Mojang ONLINE
+                        app.emit("mojang-api-status", "ONLINE").unwrap();
                         println!("[networking::get_uuid] Mojang online (200)");
                         return Some(p.id);
                     },
                     Err(_) => {
-                        // TODO: Emit "INVALID_RESPONSE" event
+                        app.emit("mojang-api-status", "ERROR").unwrap();
                         println!("[networking::get_uuid] Mojang parsing error");
                         return None;
                     }
                 }
             }
+            reqwest::StatusCode::FORBIDDEN => {
+                app.emit("mojang-api-status", "ERROR").unwrap();
+                println!("[networking::get_uuid] Mojang forbidden (wtf) (403)");
+                return None;
+            }
             reqwest::StatusCode::TOO_MANY_REQUESTS => {
-                // TODO: Emit "RATELIMIT" event to frontend
+                app.emit("mojang-api-status", "RATELIMIT").unwrap();
                 println!("[networking::get_uuid] Mojang ratelimit ({})", response.status());
                 return None;
             },
             _ => {
-                // TODO: Emit generic error event with status code
+                app.emit("mojang-api-status", "ERROR").unwrap();
                 println!("[networking::get_uuid] Mojang error ({})", response.status());
                 return None
             }
         }
     }
 
-    pub async fn get_hypixel_player(&mut self, apikey: String) {
+    pub async fn get_hypixel_player(&mut self, apikey: String, app: &AppHandle) {
         if self.uuid.is_none() {
             return;
         }
@@ -121,11 +127,11 @@ impl Player {
         let response = match reqwest::get(&url).await {
             Ok(r) => r,
             Err(e) => { if e.is_connect() || e.is_timeout() {
-                    // update Hypixel status to offline
+                    app.emit("hypixel-api-status", "OFFLINE").unwrap();
                     println!("[networking::get_hypixel_player] Hypixel offline: {}", e);
                     return;
                 } else {
-                    // update Hypixel status to error
+                    app.emit("hypixel-api-status", "ERROR").unwrap();
                     println!("[networking::get_hypixel_player] Hypixel error: {}", e);
                     return;
                 }
@@ -137,6 +143,7 @@ impl Player {
                 let profile = response.json::<HypixelResponse>().await;
                 match profile {
                     Ok(p) => {
+                        app.emit("hypixel-api-status", "ONLINE").unwrap();
                         println!("[networking::get_hypixel_player] Hypixel online (200)");
                         if p.player.is_none() {
                             return;
@@ -211,13 +218,18 @@ impl Player {
                     }
                 }
             }
+            reqwest::StatusCode::FORBIDDEN => {
+                app.emit("hypixel-api-status", "INVALID APIKEY").unwrap();
+                println!("[networking::get_hypixel_player] Hypixel forbidden / wrong api key (403)");
+                return;
+            }
             reqwest::StatusCode::TOO_MANY_REQUESTS => {
-                // TODO: Emit "RATELIMIT" event to frontend
+                app.emit("hypixel-api-status", "RATELIMIT").unwrap();
                 println!("[networking::get_hypixel_player] Hypixel ratelimit ({})", response.status());
                 return;
             },
             _ => {
-                // TODO: Emit generic error event with status code
+                app.emit("hypixel-api-status", "RATELIMIT").unwrap();
                 println!("[networking::get_hypixel_player] Hypixel error ({})", response.status());
                 return;
             }

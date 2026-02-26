@@ -14,7 +14,7 @@ async fn request_player(app: AppHandle, name: String) {
         wins: None, losses: None, wlr: None,
     };
 
-    let uuid = player.get_uuid().await;
+    let uuid = player.get_uuid(&app).await;
     if uuid.is_none() {
         println!("nicked player found");
         app.emit("add-player", player).unwrap();
@@ -30,7 +30,7 @@ async fn request_player(app: AppHandle, name: String) {
         },
     };
 
-    player.get_hypixel_player(apikey).await;
+    player.get_hypixel_player(apikey, &app).await;
     println!("{:?}", player);
     
     app.emit("add-player", player).unwrap();
@@ -58,6 +58,14 @@ fn write_apikey(apikey: String) {
     match write_api_key(apikey) {
         Ok(_) => {},
         Err(e) => println!("[lib::write_apikey] Couldn't write apikey: {}", e)
+    }
+}
+
+#[tauri::command]
+fn get_apikey(app: AppHandle) {
+    match read_api_key() {
+        Ok(key) => app.emit("get-apikey", key).unwrap(),
+        Err(e) => println!("[lib::get_apikey] Couldn't read apikey: {}", e)
     }
 }
 
@@ -91,6 +99,7 @@ pub fn run() {
             remove_player,
             clear_players,
             write_apikey,
+            get_apikey,
             initialize,
             toggle_sidebar,
             toggle_general_settings,

@@ -8,6 +8,7 @@ const status_styles: any = {
     "ONLINE": green,
     "RATELIMIT": gold,
     "ERROR": red,
+    "INVALID APIKEY": red,
     "OFFLINE": gray
 }
 

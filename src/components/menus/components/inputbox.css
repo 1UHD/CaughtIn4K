@@ -1,0 +1,27 @@
+.input-box {
+    display: flex;
+    justify-self: end;
+}
+
+.input-box input {
+    background-color: var(--background-color);
+    border: none;
+    outline: none;
+    width: 40vw;
+    font-family: var(--font);
+    color: var(--text-color);
+    font-size: 14px;
+    padding: 2px;
+}
+
+#privacy-state {
+    margin-right: 5px;
+    padding: 2px;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    cursor: pointer;
+}
+
+#privacy-state:hover {
+    color: var(--select-color);
+}
