@@ -1,46 +1,29 @@
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 mod networking;
 mod config;
+mod fetching;
+
+use std::sync::Arc;
+use std::sync::atomic::AtomicU64;
 
 use tauri::{AppHandle, Emitter};
-use crate::networking::{Player};
+use crate::fetching::{add_players, get_players_from_who, init_fetcher};
+use crate::networking::request_player;
 use crate::config::{init_config_system, read_api_key, write_api_key};
-
-async fn request_player(app: AppHandle, name: String) {
-    let mut player = Player {
-        uuid: None, name: name, rank: None, staffrank: None,
-        monthlyrank: None, rankcolor: None, bedwars_level: None,
-        final_kills: None, fkdr: None, final_deaths: None,
-        wins: None, losses: None, wlr: None,
-    };
-
-    let uuid = player.get_uuid(&app).await;
-    if uuid.is_none() {
-        println!("nicked player found");
-        app.emit("add-player", player).unwrap();
-        return;
-    }
-    player.uuid = uuid;
-
-    let apikey = match read_api_key() {
-        Ok(key) => key,
-        Err(e) => {
-            println!("error with api key{}", e);
-            return;
-        },
-    };
-
-    player.get_hypixel_player(apikey, &app).await;
-    println!("{:?}", player);
-    
-    app.emit("add-player", player).unwrap();
-}
 
 #[tauri::command]
 async fn add_player(app: AppHandle, name: String) {
     println!("{}", name);
-    
+
     request_player(app, name).await;
+}
+
+#[tauri::command]
+fn add_multiple_players(app: AppHandle, msg: String) {
+    println!("[lib::add_mutliple_players] {}", msg);
+    let players = get_players_from_who(msg);
+
+    add_players(app, players);
 }
 
 #[tauri::command]
@@ -70,6 +53,14 @@ fn get_apikey(app: AppHandle) {
 }
 
 #[tauri::command]
+fn initialize_fetcher(app: AppHandle) {
+    let interval = Arc::new(AtomicU64::new(1000));
+    println!("[lib::initialize_fetcher] initializing fetcher");
+
+    init_fetcher(app, interval.clone());
+}
+
+#[tauri::command]
 fn initialize() {
     init_config_system();
 }
@@ -96,10 +87,12 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
             add_player,
+            add_multiple_players,
             remove_player,
             clear_players,
             write_apikey,
             get_apikey,
+            initialize_fetcher,
             initialize,
             toggle_sidebar,
             toggle_general_settings,

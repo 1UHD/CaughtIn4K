@@ -9,7 +9,7 @@ interface InputBoxProps {
 }
 
 function InputBox({ placeholder = "", on_key_down, privacy_box = false }: InputBoxProps) {
-    const [privacyState, setPrivacyState] = useState<boolean>(true)
+    const [privacyState, setPrivacyState] = useState<boolean>(privacy_box ? true : false);
 
     const on_toggle_privacy = () => {
         setPrivacyState((state) => !state);

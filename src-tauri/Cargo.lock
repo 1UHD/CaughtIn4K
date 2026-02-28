@@ -390,12 +390,14 @@ dependencies = [
 name = "caughtin4k"
 version = "0.1.0"
 dependencies = [
+ "regex",
  "serde",
  "serde_json",
  "tauri",
  "tauri-build",
  "tauri-plugin-http",
  "tauri-plugin-opener",
+ "tokio",
 ]
 
 [[package]]

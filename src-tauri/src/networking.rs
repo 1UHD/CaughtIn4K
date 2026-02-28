@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, Emitter};
 use tauri_plugin_http::reqwest;
+use crate::config::read_api_key;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Player {
@@ -149,9 +150,8 @@ impl Player {
                             return;
                         }
                         let player = p.player.unwrap();
-                        if player.rank.is_some() {
-                            self.rank = player.rank;
-                        }
+                        self.rank = player.rank;
+                        
                         if player.monthly_rank.is_some() {
                             self.monthlyrank = player.monthly_rank;
                         }
@@ -235,4 +235,34 @@ impl Player {
             }
         }
     }
+}
+
+pub async fn request_player(app: AppHandle, name: String) {
+    let mut player = Player {
+        uuid: None, name: name, rank: Some("NICK".to_string()), staffrank: None,
+        monthlyrank: None, rankcolor: None, bedwars_level: None,
+        final_kills: None, fkdr: None, final_deaths: None,
+        wins: None, losses: None, wlr: None,
+    };
+
+    let uuid = player.get_uuid(&app).await;
+    if uuid.is_none() {
+        println!("nicked player found");
+        app.emit("add-player", player).unwrap();
+        return;
+    }
+    player.uuid = uuid;
+
+    let apikey = match read_api_key() {
+        Ok(key) => key,
+        Err(e) => {
+            println!("error with api key{}", e);
+            return;
+        },
+    };
+
+    player.get_hypixel_player(apikey, &app).await;
+    println!("{:?}", player);
+    
+    app.emit("add-player", player).unwrap();
 }

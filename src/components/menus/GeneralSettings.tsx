@@ -59,6 +59,17 @@ function GeneralSettings() {
             invoke("write_apikey", { apikey: event.target.value });
             event.target.value = "";
         }
+    }   
+
+    const players_on_key_down = (event: any) => {
+        if (event.key === "Enter") {
+            console.log(event.target.value);
+            invoke("add_multiple_players", { msg: event.target.value });
+        }
+    }
+
+    const launch_fetcher = () => {
+        invoke("initialize_fetcher");
     }
 
     return (
@@ -68,6 +79,9 @@ function GeneralSettings() {
                 <InputBox on_key_down={api_key_on_change} placeholder={apiKey} privacy_box={true} />
                 <p>Enable Caching</p>
                 <Toggle default_state={false} event={on_toggle_caching}/>
+                <p>Debug multiple players</p>
+                <InputBox on_key_down={players_on_key_down} />
+                <p onClick={launch_fetcher}>Init fetcher</p>
             </SettingsCategory>
         </div>
     );

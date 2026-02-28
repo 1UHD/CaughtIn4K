@@ -127,10 +127,6 @@ export function formatRank(
     rankcolor: string | undefined,
     name: string
 ) {
-    if (!rank && !monthlyrank && !staffrank && !rankcolor) {
-        return formatToSpan(["[", "NICK", "] ", name], [gray, yellow, gray, gray])
-    }
-
     let pluscolor = getRankColorHEX(rankcolor);
 
     let shownRank = "";
