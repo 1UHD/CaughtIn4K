@@ -84,9 +84,27 @@ fn start_fetcher(app: AppHandle, interval_ms: Arc<AtomicU64>, log_path: PathBuf)
 
                     for line_res in reader.lines() {
                         if let Ok(line) = line_res {
+
                             println!("{}", line);
+
+                            if let Some(matched_line) = log_pattern.captures(&line) {
+                                let line_raw = &matched_line[1];
+                                let players_raw: &str = line_raw.split("§").collect::<Vec<&str>>()[0];
+
+                                let players: Vec<String> = players_raw
+                                    .split(",")
+                                    .map(|s| s.trim().to_string())
+                                    .filter(|s| !s.is_empty())
+                                    .collect();
+
+                                if !players.is_empty() {
+                                    add_players(app.clone(), players);
+                                }
+                            }
                         }
                     }
+
+                    last_position = current_len;
                 }
             } else {
                 println!("[fetching::start_fetcher] log file not found");
