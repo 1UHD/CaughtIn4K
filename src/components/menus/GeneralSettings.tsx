@@ -87,10 +87,10 @@ function GeneralSettings() {
                 <Toggle default_state={false} event={on_toggle_caching}/>
             </SettingsCategory>
             <SettingsCategory name="FETCHING">
-                <p onClick={launch_fetcher}>Init Fetcher</p>
-                <div className="space" />
-                <p onClick={stop_fetcher}>Stop Fetcher</p>
-                <div className="space" />
+                <p onClick={launch_fetcher} id="clickable">Init Fetcher</p>
+                <div className="empty_space" />
+                <p onClick={stop_fetcher} id="clickable">Stop Fetcher</p>
+                <div className="empty_space" />
                 <p>Set Interval</p>
                 <InputBox on_key_down={interval_key_change} placeholder={intervalMs.toString()} />
             </SettingsCategory>

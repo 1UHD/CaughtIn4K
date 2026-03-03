@@ -7,6 +7,7 @@ use crate::config::read_api_key;
 pub struct Player {
     pub uuid: Option<String>,
     pub name: String,
+    pub dname: Option<String>,
     pub rank: Option<String>,
     pub monthlyrank: Option<String>,
     pub staffrank: Option<String>,
@@ -100,6 +101,10 @@ impl Player {
                     }
                 }
             }
+            reqwest::StatusCode::NOT_FOUND => {
+                println!("[networking::get_uuid] Player not found (404)");
+                return None
+            }           
             reqwest::StatusCode::FORBIDDEN => {
                 app.emit("mojang-api-status", "ERROR").unwrap();
                 println!("[networking::get_uuid] Mojang forbidden (wtf) (403)");
@@ -163,7 +168,7 @@ impl Player {
                         }
                         
                         if player.displayname.is_some() {
-                            self.name = player.displayname.unwrap();
+                            self.dname = player.displayname;
                         }
 
                         if player.achievements.is_some() {
@@ -239,7 +244,7 @@ impl Player {
 
 pub async fn request_player(app: AppHandle, name: String) {
     let mut player = Player {
-        uuid: None, name: name, rank: Some("NICK".to_string()), staffrank: None,
+        uuid: None, name: name, dname: None, rank: Some("NICK".to_string()), staffrank: None,
         monthlyrank: None, rankcolor: None, bedwars_level: None,
         final_kills: None, fkdr: None, final_deaths: None,
         wins: None, losses: None, wlr: None,

@@ -7,7 +7,7 @@ interface CategoryProps {
 
 function SettingsCategory({ name, children }: CategoryProps) {
     return (
-        <div className="settings-category">
+        <div className="settings-category" id={name}>
             <p id="settings-category-name">{name}</p>
             {children}
         </div>

@@ -1,8 +1,10 @@
 .settings-category {
     margin: 10px;
+    margin-top: 15px;
     padding: 10px;
     border: 2px solid var(--heading-color);
 
+    position: relative;
     display: grid;
     grid-template-columns: auto auto;
     align-items: center;
@@ -11,8 +13,8 @@
 #settings-category-name {
     color: var(--heading-color);
     position: absolute;
-    top: 0;
-    left: 20px;
+    top: -13px;
+    left: 10px;
     font-size: 12px;
     font-weight: bold;
     background-color: var(--menu-color);

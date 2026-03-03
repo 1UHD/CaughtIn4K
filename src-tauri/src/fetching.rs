@@ -5,10 +5,9 @@ use std::path::PathBuf;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicU64, AtomicBool, Ordering};
 use regex::Regex;
-use tauri::AppHandle;
+use tauri::{AppHandle, Emitter};
 use tauri::async_runtime::spawn;
 use tokio::time::{sleep, Duration};
-use crate::networking::request_player;
 
 pub struct AppState {
     pub is_running: Arc<AtomicBool>,
@@ -16,7 +15,17 @@ pub struct AppState {
 }
 
 const MACOS_LUNAR: [&str; 6] = [".lunarclient", "profiles", "lunar", "1.8", "logs", "latest.log"];
+const WINDOWS_LUNAR: [&str; 6] = [".lunarclient", "profiles", "lunar", "1.8", "logs", "latest.log"];
+const LINUX_LUNAR: [&str; 6] = [".lunarclient", "profiles", "lunar", "1.8", "logs", "latest.log"];
+
 const MACOS_VANILLA: [&str; 5] = ["Library", "Application Support", "minecraft", "logs", "latest.log"];
+const WINDOWS_VANILLA: [&str; 5] = ["AppData", "Roaming", ".minecraft", "logs", "latest.log"];
+const LINUX_VANILLA: [&str; 3] = [".minecraft", "logs", "latest.log"];
+
+const MACOS_BADLION: [&str; 7] = ["Library", "Application Support", "minecraft", "logs", "blclient", "minecraft", "latest.log"];
+const WINDOWS_BADLION: [&str; 7] = ["AppData", "Roaming", ".minecraft", "logs", "blclient", "minecraft", "latest.log"];
+const LINUX_BADLION: [&str; 5] = [".minecraft", "logs", "blclient", "minecraft", "latest.log"];
+
 
 fn get_log_path() -> Option<PathBuf> {
     //'/Users/xxx/Library/Application Support/PrismLauncher/instances/1.8.9/minecraft/logs/latest.log'
@@ -26,6 +35,7 @@ fn get_log_path() -> Option<PathBuf> {
         let client_path: Vec<&str> = match client {
             "LUNAR" => MACOS_LUNAR.to_vec(),
             "VANILLA" => MACOS_VANILLA.to_vec(),
+            "BADLION" => MACOS_BADLION.to_vec(),
             _ => MACOS_LUNAR.to_vec()
         };
 
@@ -38,19 +48,38 @@ fn get_log_path() -> Option<PathBuf> {
 
             return path;
         });
-    } else {
+    } else if cfg!(target_os = "windows") {
+        let client_path: Vec<&str> = match client {
+            "LUNAR" => WINDOWS_LUNAR.to_vec(),
+            "VANILLA" => WINDOWS_VANILLA.to_vec(),
+            "BADLION" => WINDOWS_BADLION.to_vec(),
+            _ => WINDOWS_LUNAR.to_vec()
+        };
+
         return env::var_os("HOME").map(|home| {
             let mut path = PathBuf::from(home);
-            path.push("Library");
-            path.push("Application Support");
-            path.push("PrismLauncher");
-            path.push("instances");
-            path.push("1.8.9");
-            path.push("minecraft");
-            path.push("logs");
-            path.push("latest.log");
+            
+            for p in client_path {
+                path.push(p);
+            }
 
-            println!("{:?}", path);
+            return path;
+        });
+    } else {
+        let client_path: Vec<&str> = match client {
+            "LUNAR" => LINUX_LUNAR.to_vec(),
+            "VANILLA" => LINUX_VANILLA.to_vec(),
+            "BADLION" => LINUX_BADLION.to_vec(),
+            _ => LINUX_LUNAR.to_vec()
+        };
+
+        return env::var_os("HOME").map(|home| {
+            let mut path = PathBuf::from(home);
+
+            for p in client_path {
+                path.push(p);
+            }
+
             return path;
         });
     }
@@ -63,7 +92,8 @@ pub fn add_players(app: AppHandle, players: Vec<String>) {
         spawn(async move {
             println!("[fetching::add_players] starting call for {}", player);
 
-            request_player(app_clone, player).await;
+            //request_player(app_clone, player).await;
+            app_clone.emit("request-player", player).unwrap();
         });
     }
 }

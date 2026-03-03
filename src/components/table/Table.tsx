@@ -7,6 +7,7 @@ import { invoke } from "@tauri-apps/api/core";
 interface PlayerProps {
     uuid: string | undefined;
     name: string;
+    dname: string | undefined;
     rank: string | undefined;
     monthlyrank: string | undefined;
     staffrank: string | undefined;
@@ -20,8 +21,8 @@ interface PlayerProps {
     wlr: number | undefined;
 }
 
-function Player({ uuid, name, rank, monthlyrank, staffrank, rankcolor, bedwars_level, final_kills, fkdr, wins, wlr }: PlayerProps) {
-    let display_name = formatRank(rank, monthlyrank, staffrank, rankcolor, name);
+function Player({ uuid, name, dname, rank, monthlyrank, staffrank, rankcolor, bedwars_level, final_kills, fkdr, wins, wlr }: PlayerProps) {
+    let display_name = formatRank(rank, monthlyrank, staffrank, rankcolor, dname ? dname : name);
     let display_level = bedwars_level ? formatStars(bedwars_level) : "";
 
     let attributes = [display_level, display_name, final_kills, fkdr, wins, wlr];
@@ -30,11 +31,11 @@ function Player({ uuid, name, rank, monthlyrank, staffrank, rankcolor, bedwars_l
 
     const toggle_context_menu = (event: any) => {
         event.preventDefault();
-        invoke("remove_player", { uuid });
+        invoke("remove_player", { name });
     }
 
     return (
-        <tr key={uuid} onContextMenu={toggle_context_menu}>
+        <tr key={name.toLowerCase()} onContextMenu={toggle_context_menu}>
             <td>{player_skull ? <img src={player_skull} /> : null}</td>
             {attributes.map((item) => (
                 <td>{item ? item : "-"}</td>
@@ -48,8 +49,8 @@ function Table() {
     const [players, setPlayers] = useState<PlayerProps[]>([]);
     const playersRef = useRef<PlayerProps[]>(players);
 
-    const player_already_exists = (uuid: string) => {
-        return playersRef.current.some(p => p.uuid === uuid);
+    const player_already_exists = (name: string) => {
+        return playersRef.current.some(p => p.name.toLowerCase() === name.toLowerCase());
     }
 
     useEffect(() => {
@@ -57,14 +58,23 @@ function Table() {
     }, [players]);
     
     useEffect(() => {
+        const unlisten_request_player = listen<string>(
+            "request-player",
+            (event) => {
+                if (!player_already_exists(event.payload)) {
+                    invoke("add_player", { name: event.payload });
+                }
+            }
+        )
+
         const unlisten_add_player = listen<PlayerProps>(
             "add-player",
             async (event) => {
-                const player_uuid = event.payload.uuid;
+                const player_name = event.payload.name;
 
-                if (player_uuid) {
-                    console.log(player_already_exists(player_uuid));
-                    if (player_already_exists(player_uuid)) {
+                if (player_name) {
+                    console.log(player_already_exists(player_name));
+                    if (player_already_exists(player_name)) {
                         return;
                     }
                 }
@@ -77,10 +87,10 @@ function Table() {
         const unlisten_remove_player = listen<String>(
             "remove-player",
             (event) => {
-                const player_uuid = event.payload;
+                const player_name = event.payload;
 
                 setPlayers((prev_players) => prev_players.filter(
-                    (p) => p.uuid !== player_uuid
+                    (p) => p.name !== player_name
                 ));
             }
         );
@@ -93,6 +103,7 @@ function Table() {
         );
 
         return () => {
+            unlisten_request_player.then((unlisten) => unlisten());
             unlisten_add_player.then((unlisten) => unlisten());
             unlisten_remove_player.then((unlisten) => unlisten());
             unlisten_clear_players.then((unlisten) => unlisten());

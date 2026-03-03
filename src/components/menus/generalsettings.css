@@ -15,9 +15,20 @@
     color: var(--text-color);
 }
 
-.space {
+.general p {
+    padding-top: 3px;
+}
+
+#clickable {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    cursor: pointer;
+}
+
+.empty_space {
     padding: 0;
     margin: 0;
-    width: 0;
-    height: 0;
+    width: 1px;
+    height: 2px;
+    justify-self: right;
 }
