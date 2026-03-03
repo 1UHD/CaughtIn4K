@@ -4,10 +4,10 @@ mod config;
 mod fetching;
 
 use std::sync::Arc;
-use std::sync::atomic::AtomicU64;
+use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 
 use tauri::{AppHandle, Emitter};
-use crate::fetching::{add_players, get_players_from_who, init_fetcher};
+use crate::fetching::{AppState, add_players, get_players_from_who, init_fetcher};
 use crate::networking::request_player;
 use crate::config::{init_config_system, read_api_key, write_api_key};
 
@@ -53,11 +53,22 @@ fn get_apikey(app: AppHandle) {
 }
 
 #[tauri::command]
-fn initialize_fetcher(app: AppHandle) {
-    let interval = Arc::new(AtomicU64::new(1000));
+fn initialize_fetcher(app: AppHandle, state: tauri::State<'_, AppState>) {
     println!("[lib::initialize_fetcher] initializing fetcher");
+    state.is_running.store(true, Ordering::Relaxed);
+    init_fetcher(app, state.interval_ms.clone(), state.is_running.clone());
+}
 
-    init_fetcher(app, interval.clone());
+#[tauri::command]
+fn stop_fetcher(state: tauri::State<'_, AppState>) {
+    state.is_running.store(false, Ordering::Relaxed);
+    println!("[lib::stop_fetcher] stopped fetcher");
+}
+
+#[tauri::command]
+fn update_interval(state: tauri::State<'_, AppState>, newms: u64) {
+    state.interval_ms.store(newms, Ordering::Relaxed);
+    println!("[lib::update_interval] Polling rate set to {}ms", newms);
 }
 
 #[tauri::command]
@@ -82,7 +93,14 @@ fn close_general_settings(app: AppHandle) {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    let interval_ms = Arc::new(AtomicU64::new(1000));
+    let is_running = Arc::new(AtomicBool::new(true));
+
     tauri::Builder::default()
+        .manage(AppState {
+            is_running,
+            interval_ms
+        })
         .plugin(tauri_plugin_http::init())
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
@@ -93,6 +111,8 @@ pub fn run() {
             write_apikey,
             get_apikey,
             initialize_fetcher,
+            stop_fetcher,
+            update_interval,
             initialize,
             toggle_sidebar,
             toggle_general_settings,

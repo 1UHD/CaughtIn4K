@@ -9,6 +9,7 @@ import { invoke } from "@tauri-apps/api/core";
 function GeneralSettings() {
     const [generalSettingsState, setGeneralSettingsState] = useState<boolean>(false);
     const [apiKey, setApiKey] = useState<string>("");
+    const [intervalMs, setIntervalMs] = useState<number>(1000);
 
     const style_when_hidden = {
         right: "-100vw"
@@ -59,17 +60,22 @@ function GeneralSettings() {
             invoke("write_apikey", { apikey: event.target.value });
             event.target.value = "";
         }
-    }   
+    }
 
-    const players_on_key_down = (event: any) => {
+    const interval_key_change = (event: any) => {
         if (event.key === "Enter") {
-            console.log(event.target.value);
-            invoke("add_multiple_players", { msg: event.target.value });
+            setIntervalMs(Number(event.target.value));
+            invoke("update_interval", { newms: Number(event.target.value) });
+            event.target.value = "";
         }
     }
 
     const launch_fetcher = () => {
         invoke("initialize_fetcher");
+    }
+
+    const stop_fetcher = () => {
+        invoke("stop_fetcher");
     }
 
     return (
@@ -79,9 +85,14 @@ function GeneralSettings() {
                 <InputBox on_key_down={api_key_on_change} placeholder={apiKey} privacy_box={true} />
                 <p>Enable Caching</p>
                 <Toggle default_state={false} event={on_toggle_caching}/>
-                <p>Debug multiple players</p>
-                <InputBox on_key_down={players_on_key_down} />
-                <p onClick={launch_fetcher}>Init fetcher</p>
+            </SettingsCategory>
+            <SettingsCategory name="FETCHING">
+                <p onClick={launch_fetcher}>Init Fetcher</p>
+                <div className="space" />
+                <p onClick={stop_fetcher}>Stop Fetcher</p>
+                <div className="space" />
+                <p>Set Interval</p>
+                <InputBox on_key_down={interval_key_change} placeholder={intervalMs.toString()} />
             </SettingsCategory>
         </div>
     );

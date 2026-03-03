@@ -14,3 +14,10 @@
     font-size: 14px;
     color: var(--text-color);
 }
+
+.space {
+    padding: 0;
+    margin: 0;
+    width: 0;
+    height: 0;
+}
